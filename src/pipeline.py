@@ -111,7 +111,7 @@ def geocode_collisions():
     geocoded_address_collisions.to_parquet(f"{CONTAINER_PATH}/data/processed/geocoded_address_collisions.parquet", index=False)
 
 
-def compute_match_scores():
+def compute_similarity():
     # Load geocoded collision data
     geocoded_intersection_collisions = gpd.read_parquet(f"{CONTAINER_PATH}/data/processed/geocoded_intersection_collisions.parquet")
     geocoded_address_collisions = gpd.read_parquet(f"{CONTAINER_PATH}/data/processed/geocoded_address_collisions.parquet")
@@ -127,14 +127,12 @@ def compute_match_scores():
 
     geocoded_address_collisions['description'] = geocoded_address_collisions['description'].str.lower()
 
-    # Compute match score for intersection collisions
-    intersection_scores = process.cdist(geocoded_intersection_collisions['location_description'], geocoded_intersection_collisions['description'], scorer=fuzz.token_set_ratio)
-    geocoded_intersection_collisions['match_score'] = intersection_scores.diagonal()
+    # Compute similarity for intersection collisions
+    geocoded_intersection_collisions['similarity_score'] = [fuzz.token_set_ratio(loc_desc, desc) for loc_desc, desc in zip(geocoded_intersection_collisions['location_description'], geocoded_intersection_collisions['description'])]
 
-    # Compute match score for address collisions
-    address_scores = process.cdist(geocoded_address_collisions['location_description'], geocoded_address_collisions['description'], scorer=fuzz.token_set_ratio)
-    geocoded_address_collisions['match_score'] = address_scores.diagonal()
+    # Compute similarity for address collisions
+    geocoded_address_collisions['similarity_score'] = [fuzz.token_set_ratio(loc_desc, desc) for loc_desc, desc in zip(geocoded_address_collisions['location_description'], geocoded_address_collisions['description'])]
 
-    # Saving the final geocoded collisions with match scores to parquet files
+    # Saving the final geocoded collisions with similarity scores to parquet files
     geocoded_intersection_collisions.to_parquet(f"{CONTAINER_PATH}/data/processed/final_geocoded_intersection_collisions.parquet", index=False)
     geocoded_address_collisions.to_parquet(f"{CONTAINER_PATH}/data/processed/final_geocoded_address_collisions.parquet", index=False)

@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime
 
-from src.pipeline import load_collisions, load_intersections, load_addresses, split_collisions, geocode_collisions, compute_match_scores
+from src.pipeline import load_collisions, load_intersections, load_addresses, split_collisions, geocode_collisions, compute_similarity
 
 with DAG(
     'geocode_pipeline',
@@ -36,9 +36,9 @@ with DAG(
         python_callable=geocode_collisions,
     )
 
-    compute_match_scores_task = PythonOperator(
-        task_id='compute_match_scores',
-        python_callable=compute_match_scores,
+    compute_similarity_task = PythonOperator(
+        task_id='compute_similarity',
+        python_callable=compute_similarity,
     )
 
-    [load_collisions_task, load_intersections_task, load_addresses_task] >> split_collisions_task >> geocode_collisions_task >> compute_match_scores_task
+    [load_collisions_task, load_intersections_task, load_addresses_task] >> split_collisions_task >> geocode_collisions_task >> compute_similarity_task
