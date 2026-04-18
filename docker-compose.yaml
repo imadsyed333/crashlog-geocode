@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - _PIP_ADDITIONAL_REQUIREMENTS=pandas geopandas scikit-learn rapidfuzz shapely pyproj
+      - _PIP_ADDITIONAL_REQUIREMENTS=pandas geopandas rapidfuzz shapely pyproj
       - PYTHONPATH=/opt/airflow
     volumes:
       - ./dags:/opt/airflow/dags
