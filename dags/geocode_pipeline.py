@@ -1,6 +1,5 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from datetime import datetime
 
 from src.pipeline import load_collisions, load_intersections, load_addresses, split_collisions, geocode_collisions, compute_similarity
 
